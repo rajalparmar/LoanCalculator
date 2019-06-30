@@ -10,9 +10,11 @@ const loanCalculatorView = {
         errorElement: document.createElement('div'),
         card: document.querySelector('.card'),
         heading: document.querySelector('.heading'),
+        results: document.getElementById('results'),
+        loader: document.getElementById('loading'),
     },
     formFunctions: {
-        calculateResults: function calculateResults(e) {
+        calculateResults: function calculateResults() {
             let principal = parseFloat(loanCalculatorView.elements.amount.value);
             let interestInDecimals = parseFloat(loanCalculatorView.elements.interest.value) / 100 / 12;
             let numOfMonths = parseFloat(loanCalculatorView.elements.years.value) * 12;
@@ -26,12 +28,17 @@ const loanCalculatorView = {
                 loanCalculatorView.elements.monthlyPayment.value = monthlyPayment;
                 loanCalculatorView.elements.totalPayment.value = totalPayment;
                 loanCalculatorView.elements.totalInterest.value = totalInterest;
+                loanCalculatorView.formFunctions.showResults();
+                loanCalculatorView.formFunctions.hideLoader();
+               
             } else {
                 loanCalculatorView.formFunctions.showError('Please check your numbers');
             }
-            e.preventDefault();
         },
         showError: function showError(errorMessage) {
+            loanCalculatorView.formFunctions.hideLoader();
+            loanCalculatorView.formFunctions.hideResults();
+
             loanCalculatorView.elements.errorElement.className = 'alert alert-danger';
             loanCalculatorView.elements.errorElement.appendChild(document.createTextNode(errorMessage));
 
@@ -45,10 +52,28 @@ const loanCalculatorView = {
         clear: function clear() {
             document.querySelector('.alert').remove();
         },
+        showResults: function showResults() {
+            loanCalculatorView.elements.results.style.display = 'block';
+        },
+        hideResults: function hideResults() {
+            loanCalculatorView.elements.results.style.display = 'none';
+        },
+        showLoader: function showLoader() {
+            loanCalculatorView.elements.loader.style.display = 'block';
+        },
+        hideLoader: function hideLoader() {
+            loanCalculatorView.elements.loader.style.display = 'none';
+        },
     },
     eventListeners: {
         onCalculateClick:  function onCalculateClick() {
-            loanCalculatorView.elements.loanForm.addEventListener('submit', loanCalculatorView.formFunctions.calculateResults);
+            loanCalculatorView.elements.loanForm.addEventListener('submit', (e) => {
+                loanCalculatorView.formFunctions.hideResults();
+                loanCalculatorView.formFunctions.showLoader();
+                setTimeout(loanCalculatorView.formFunctions.calculateResults, 2000);
+
+                e.preventDefault();
+            });
         },
     },
     init: function initEventListeners() {
